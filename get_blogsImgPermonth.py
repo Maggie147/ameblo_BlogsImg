@@ -16,25 +16,25 @@ import re
 from requests import Request, Session
 from multiprocessing.dummy import Pool
 # sys.path.append("../Common/pylib")
-reload(sys)
-sys.setdefaultencoding('utf8')
+# reload(sys)
+# sys.setdefaultencoding('utf8')
 total_img_num = 0
 
 photo_folder = ''
 
 def usage(processName):
-    print "Usage: %s URL  Path" % processName
-    print "For example:"
-    print "     ..."
+    print("Usage: %s URL  Path" % processName) 
+    print("For example:") 
+    print("     ...") 
 
 def check_input(buf):
     if not buf:
-        print "Not input blog time"
+        print("Not input blog time") 
         sys.exit()
     try:
         int(buf)
     except Exception as e:
-        print "Please ckeck up input[eg: 201710]"
+        print("Please ckeck up input[eg: 201710]") 
         sys.exit()
     strLen = len(buf.strip())
     if strLen == 5:
@@ -42,7 +42,7 @@ def check_input(buf):
     elif strLen == 6:
         time = buf
     else:
-        print "Please ckeck up input[eg: 201710]"
+        print("Please ckeck up input[eg: 201710]") 
         sys.exit()
     return time
 
@@ -79,11 +79,11 @@ def GetMsgEx(url, para=None, cookies=None, data=None, filename=None, debug=0):
         raise e
         return None
     if str(response.status_code)[0] != '2':
-        print "HTTP error, status_code is %s,  url=%s"%(response.status_code, url)
+        print( "HTTP error, status_code is %s,  url=%s"%(response.status_code, url))
         return None
     if debug:
-        print url
-        print response.status_code
+        print(url) 
+        print(response.status_code) 
         pprint.pprint(headers) 
 
     if filename:
@@ -104,11 +104,11 @@ def download_img(url):
         # print img_name
         filename = GetMsgEx(img_src.strip(), filename=img_path)
         if not filename:
-            print "get img_src[%s] failed!"%img_src
+            print("get img_src[%s] failed!"%img_src) 
             return None 
         return filename
     except Exception as e:
-        print e
+        print(e)
         return None
 
 def get_blogTT(buf):
@@ -137,7 +137,7 @@ def get_imgsSrc(buf):
 
 def get_allBlogs(first_url, debug):
     if not first_url:
-        print "NO url to request!"
+        print("NO url to request!") 
         return None
     headers = { 'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:55.0) Gecko/20100101 Firefox/55.0',
         'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -145,8 +145,9 @@ def get_allBlogs(first_url, debug):
         'Upgrade-Insecure-Requests': '1'}
     response = GetMsgEx(first_url, headers)
     if not response:
-        print "request first_url[%s] error!" % first_url
+        print("request first_url[%s] error!" % first_url) 
         return None
+    print(response.encode('utf-8'))
 
     blogs_urls = []
     restr = r'<ul class="contentsList skinBorderList">(.*?)</ul>'
@@ -167,18 +168,18 @@ def analyse_blogs(argv):
     debug   = argv[1]
     response = GetMsgEx(blog_url.strip())
     if not response:
-        print "request blog_url[%s] faild!" % blog_url
+        print("request blog_url[%s] faild!" % blog_url) 
         return (None,None,None)
     blog_title = blog_time = ''
     blog_title, blog_time =  get_blogTT(response)
-    print "blog_title: ", blog_title
-    print "blog_time:  ", blog_time
+    print("blog_title: %s"% blog_title) 
+    print("blog_time:  %s"% str(blog_time)) 
 
-    print "get img src, and dowmload..."
+    print("get img src, and dowmload...") 
     imgs_src = get_imgsSrc(response)
     if imgs_src:
         imgs_num = len(imgs_src)
-        print "this blog img_num: %d\n"%imgs_num
+        print("this blog img_num: %d\n"%imgs_num)
         total_img_num = total_img_num + imgs_num
         pool = Pool(len(imgs_src))
         filenames = pool.map(download_img, imgs_src)
@@ -189,7 +190,7 @@ def analyse_blogs(argv):
                 # print "download %s successful!"% per
                 pass
             else:
-                print "download %s failed!!!!!"%per
+                print("download %s failed!!!!!"%per) 
         return (blog_title, blog_time, len(imgs_src))
 
 
@@ -200,19 +201,20 @@ def start_fun(para, debug=0):
         first_url = para['URL'].strip()
         photo_folder  = para['Path'].strip()
     except Exception as e:
-        print e
+        print(e)
         sys.exit()
 
     ''' get all blogs list'''
-    print "get blogs url list..."
+    print("get blogs url list...") 
     blogs_urls = get_allBlogs(first_url, debug)
+    print(blogs_urls)
     if not blogs_urls or not isinstance(blogs_urls, list):
-        print "get  blogs url failed!!!"
-        sys.exit()
+        print("get  blogs url failed!!!") 
+        sys.exit(blogs_urls)
 
     ''' Pool analyse blogs list'''
     total_blog_num = len(blogs_urls)
-    print "total blogs_num: ", total_blog_num
+    print("total blogs_num: ", total_blog_num) 
     debugs = [debug]*total_blog_num
     pool = Pool(total_blog_num)
     pool.map(analyse_blogs, zip(blogs_urls, debugs))
@@ -220,18 +222,19 @@ def start_fun(para, debug=0):
     pool.join()
 
     time_end = get_nowtime()
-    print "total_blog_num: ", total_blog_num
-    print "total_img_num:  ", total_img_num
-    print "Lasted %d seconds" % (time_end-time_start)
+    print("total_blog_num: ", total_blog_num) 
+    print("total_img_num:  ", total_img_num) 
+    print("Lasted %d seconds" % (time_end-time_start)) 
 
 
 def main():
     para = {}
     argc = len(sys.argv)
     if argc == 1:
-        inputString = raw_input("Enter request blog_time year month [eg: 201710]: ")
+        inputString = input("Enter request blog_time year month [eg: 201710]: ")   # python3 no raw_input()
         blog_time = check_input(inputString)
         para['URL']  = "https://ameblo.jp/officialpress/archiveentrylist-%s.html"%blog_time
+        print(para['URL'])
         para['Path'] = "./"+str(blog_time)+"/"
     elif argc == 3:
         para['URL'] = sys.argv[1]
