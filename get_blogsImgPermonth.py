@@ -3,7 +3,8 @@
 """
 __title__ = 'python_2.7 [requests] get blog image v1.0'
 __author__ = 'xxxx'
-__mtime__ = '2017-11-03'
+__ctime__ = '2017-11-03'
+__mtime__ = '2018-04-09'
 
 """
 
