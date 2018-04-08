@@ -116,7 +116,11 @@ def get_blogTT(buf):
     ret = re.findall(restr, buf, re.S | re.M)
     title = ''
     if ret:
-        title = ret[0].decode('utf-8')
+        try:
+            title = ret[0].decode('utf-8')
+        except Exception as e:
+            title = ret[0].encode('utf-8')
+        
     restr = r'<span class="articleTime.*?<time.*?>(.*?)</time>'    
     ret2 = re.findall(restr, buf, re.S | re.M)
     time = ''
@@ -126,10 +130,11 @@ def get_blogTT(buf):
 
 def get_imgsSrc(buf):
     img_urls = []
-    restr = r'<div class="articleText"(.*?)</div>'
+    restr = r'<div.*?id="entryBody"(.*?)</div>'
     ret = re.findall(restr, buf, re.S | re.M)
     if ret:
-        restr = r'<a id=".*?class="detailOn".*?<img.*?src="(.*?)"'
+        print(" get blog body!!!")
+        restr = r'<p><a.*?<img.*?src="(.*?)"'
         img_list = re.findall(restr, str(ret), re.S | re.M)
         img_urls = [img for img in img_list if img]
     return img_urls
@@ -147,16 +152,17 @@ def get_allBlogs(first_url, debug):
     if not response:
         print("request first_url[%s] error!" % first_url) 
         return None
-    print(response.encode('utf-8'))
+    # print(response.encode('utf-8'))
 
     blogs_urls = []
-    restr = r'<ul class="contentsList skinBorderList">(.*?)</ul>'
+    restr = r'<ul.*?class="skin-archiveList">(.*?)</ul>'
     ret = re.findall(restr, response, re.S | re.M)
     # pattern = re.compile(restr,re.VERBOSE | re.IGNORECASE |re.DOTALL)
     # ret  = pattern.findall(response)
     # print ret
     if ret:
-        restr = r'<li>.*?<a class="contentTitle" href="(.*?)">'
+        print(" get ul")
+        restr = r'<li.*?<a href="(.*?)">'
         blogs_list = re.findall(restr, str(ret), re.S | re.M)
         blogs_urls = [blog for blog in blogs_list if blog]
     return blogs_urls
@@ -172,8 +178,8 @@ def analyse_blogs(argv):
         return (None,None,None)
     blog_title = blog_time = ''
     blog_title, blog_time =  get_blogTT(response)
-    print("blog_title: %s"% blog_title) 
-    print("blog_time:  %s"% str(blog_time)) 
+    # print("blog_title: %s"% blog_title) 
+    # print("blog_time:  %s"% str(blog_time)) 
 
     print("get img src, and dowmload...") 
     imgs_src = get_imgsSrc(response)
