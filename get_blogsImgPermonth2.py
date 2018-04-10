@@ -16,7 +16,7 @@ from requests import Request, Session
 from multiprocessing.dummy import Pool
 
 
-class DealWithArgv():
+class DealWithArgv(object):
     def __init__(self, debug):
         self.debug = debug
         self.raw_url = ''
@@ -65,7 +65,7 @@ class DealWithArgv():
         print("save_path: ", self.save_path)
 
 
-class AmebloImgReq():
+class AmebloImgReq(object):
     def __init__(self, para):
         self.__paraGet(para)
         self.img_url = []
